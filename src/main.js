@@ -10,7 +10,9 @@ function calculateSimpleRevenue(purchase, _product) {
 
    const discountFactor = 1 - (discount / 100);
 
-   return sale_price * quantity * discountFactor;
+   const revenue = sale_price * quantity * discountFactor;
+
+    return +revenue.toFixed(2);
 }
 
 /**
@@ -91,17 +93,18 @@ function analyzeSalesData(data, options) {
     data.purchase_records.forEach(record => {
         const seller = sellerIndex[record.seller_id];
 
-        seller.sales_count +=1;
+        seller.sales_count += 1;
 
         let totalRevenue = 0;
+        let totalProfit = 0;
 
         record.items.forEach(item => {
             const product = productIndex[item.sku];
             const revenue = calculateRevenue(item, product);
             const cost = product.purchase_price * item.quantity;
-            const profit = revenue - cost;
+            const profit = revenue - cost; 
 
-            seller.profit += profit;
+            totalProfit += profit; 
             totalRevenue += revenue;
 
             if (!seller.products_sold[item.sku]) {
@@ -110,7 +113,8 @@ function analyzeSalesData(data, options) {
             seller.products_sold[item.sku] += item.quantity;
         });
 
-        seller.revenue += totalRevenue;
+        seller.profit += +totalProfit.toFixed(2);
+        seller.revenue += +totalRevenue.toFixed(2);
     });
     // Сортировка продавцов по прибыли
     sellerStats.sort((a,b) => b.profit - a.profit);
